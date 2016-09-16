@@ -140,6 +140,11 @@ namespace NumericBaseball
 
         public void FinishGame(GameRoom room)
         {
+            foreach (var p in _connectionRoomDictionary.Where(p => p.Value == room.GroupId).Select(p => p.Key))
+            {
+                _connectionRoomDictionary.Remove(p);
+            }
+
             _gameRooms.Remove(room.GroupId);
         }
     }

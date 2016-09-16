@@ -93,7 +93,7 @@ namespace NumericBaseball
 
             if (strike == 3)
             {
-                _scores[connection] += 5;
+                _scores[connection] += 2;
 
                 FinishGame(_scores.OrderByDescending(s => s.Value).First().Key);
 
