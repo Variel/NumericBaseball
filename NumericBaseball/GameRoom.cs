@@ -95,6 +95,9 @@ namespace NumericBaseball
             {
                 _scores[connection] += 2;
 
+                _context.Value.Clients.Group(GroupId)
+                    .updateScores(_scores.OrderByDescending(s => s.Value).Select(s => $"{s.Key.Name}: {s.Value}"));
+
                 FinishGame(_scores.OrderByDescending(s => s.Value).First().Key);
 
                 return;
