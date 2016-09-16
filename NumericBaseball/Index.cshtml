@@ -7,7 +7,7 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width" />
-    <title></title>
+    <title>온라인 숫자야구 대전</title>
 </head>
 <body>
     <div id="scores"></div>
@@ -62,7 +62,7 @@
         }
 
         hub.client.joinRoom = function (roomId) {
-            addMsg('방 [' + roomId + ']에 참여했습니다');
+            addMsg('방 [' + roomId + ']에 참여했습니다. 다른 플레이어를 기다리는 중입니다.');
         }
 
         hub.client.playerConnected = function (name) {
