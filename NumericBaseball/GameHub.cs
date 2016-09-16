@@ -34,7 +34,7 @@ namespace NumericBaseball
             }
 
             var connection = _connections[Context.ConnectionId];
-            GameManager.Instance.GetGameRoomByConnection(connection)
+            GameManager.Instance.GetGameRoomByConnection(connection)?
                 .Guess(connection, numbers.ToCharArray());
         }
 
@@ -42,6 +42,12 @@ namespace NumericBaseball
         {
             var connection = _connections[Context.ConnectionId];
             GameManager.Instance.FindRoom(connection);
+        }
+
+        public void ExitRoom()
+        {
+            var connection = _connections[Context.ConnectionId];
+            GameManager.Instance.Disconnect(connection);
         }
 
         public void SetName(string name)

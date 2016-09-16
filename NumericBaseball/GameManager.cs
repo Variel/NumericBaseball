@@ -25,7 +25,10 @@ namespace NumericBaseball
         {
             if (_connectionRoomDictionary.ContainsKey(connection))
             {
-                return _gameRooms[_connectionRoomDictionary[connection]];
+                if (_gameRooms.ContainsKey(_connectionRoomDictionary[connection]))
+                {
+                    return _gameRooms[_connectionRoomDictionary[connection]];
+                }
             }
 
             return null;

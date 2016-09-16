@@ -124,6 +124,7 @@
   <ItemGroup>
     <Content Include="packages.config" />
     <Content Include="Index.cshtml" />
+    <None Include="Properties\PublishProfiles\Default Settings.pubxml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -132,7 +133,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Properties\PublishProfiles\main.variel.kr.pubxml" />
     <None Include="Scripts\jquery-1.6.4-vsdoc.js" />
     <Content Include="Scripts\jquery-1.6.4.js" />
     <Content Include="Scripts\jquery-1.6.4.min.js" />

@@ -16,11 +16,22 @@
         <input id="send-input" type="text" placeholder="숫자를 입력하세요"/>
         <input type="submit" value="전송"/>
     </form>
+    <button id="btn-exit">방 나가기</button>
     <script src="~/Scripts/jquery-1.6.4.min.js"></script>
     <script src="~/Scripts/jquery.signalR-2.2.1.min.js"></script>
     <script src="~/signalr/hubs"></script>
     <script>
         var hub = $.connection.gameHub;
+
+        function clearScore() {
+            $('#scores')
+                .html('');
+        }
+
+        function clearMsg() {
+            $('#numbers')
+                .html('');
+        }
 
         function addMsg(msg) {
             $('#numbers')
@@ -55,10 +66,15 @@
 
         hub.client.finishGame = function (winner, score) {
             addMsg(winner + '님이 ' + score + '점으로 이겼습니다');
-            if (confirm('계속하시겠습니까?')) {
-                addMsg('새 게임을 검색합니다');
-                hub.client.findRoom();
-            }
+            setTimeout(function() {
+                    if (confirm('새 게임을 계속하시겠습니까?')) {
+                        clearMsg();
+                        clearScore();
+                        addMsg('새 게임을 검색합니다');
+                        hub.server.findRoom();
+                    }
+                },
+                100);
         }
 
         hub.client.joinRoom = function (roomId) {
@@ -76,7 +92,9 @@
         $.connection.hub.start()
             .done(function() {
                 var name = prompt('사용할 이름을 적어주세요');
-                hub.server.setName(name);
+                if (name && name.length !== 0 && name.replace(/\s/g, '').length !== 0) {
+                    hub.server.setName(name);
+                }
                 hub.server.findRoom();
             });
 
@@ -95,6 +113,21 @@
                 $('#send-input').val('');
 
                 return false;
+            });
+
+        $('#btn-exit')
+            .click(function() {
+                hub.server.exitRoom();
+                addMsg('게임을 종료하고 방을 나왔습니다');
+                setTimeout(function() {
+                        if (confirm('새 게임을 계속하시겠습니까?')) {
+                            clearMsg();
+                            clearScore();
+                            addMsg('새 게임을 검색합니다');
+                            hub.server.findRoom();
+                        }
+                    },
+                    100);
             });
     </script>
 </body>

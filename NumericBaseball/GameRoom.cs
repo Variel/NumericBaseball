@@ -61,6 +61,12 @@ namespace NumericBaseball
 
         public void Guess(Connection connection, char[] numbers)
         {
+            if (!IsStarted)
+            {
+                _context.Value.Clients.Client(connection.Id).error("다른 플레이어를 기다리는 중입니다");
+                return;
+            }
+
             int strike = 0, ball = 0;
 
             for (int i = 0; i < 3; i++)
