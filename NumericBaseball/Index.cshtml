@@ -1,0 +1,101 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+</head>
+<body>
+    <div id="scores"></div>
+    <div id="numbers"></div>
+    <form id="send-form">
+        <input id="send-input" type="text" placeholder="숫자를 입력하세요"/>
+        <input type="submit" value="전송"/>
+    </form>
+    <script src="~/Scripts/jquery-1.6.4.min.js"></script>
+    <script src="~/Scripts/jquery.signalR-2.2.1.min.js"></script>
+    <script src="~/signalr/hubs"></script>
+    <script>
+        var hub = $.connection.gameHub;
+
+        function addMsg(msg) {
+            $('#numbers')
+                .append('<div>' + msg + '</div>');
+        }
+
+        function addMsgWithSender(sender, msg) {
+            addMsg('[' + sender + '] ' + msg);
+        }
+
+        hub.client.error = function (msg) {
+            $('#numbers')
+                .append('<div>' + msg + '</div>');
+        }
+
+        hub.client.newGuess = function (id, msg) {
+            addMsgWithSender(id, msg);
+        }
+
+        hub.client.updateScores = function (scores) {
+            $('#scores').html('');
+
+            for (var id in scores) {
+                $('#scores')
+                    .append('<div>' + scores[id] + '</div>');
+            }
+        }
+
+        hub.client.beginGame = function () {
+            addMsg('게임 시작');
+        }
+
+        hub.client.finishGame = function (winner, score) {
+            addMsg(winner + '님이 ' + score + '점으로 이겼습니다');
+            if (confirm('계속하시겠습니까?')) {
+                addMsg('새 게임을 검색합니다');
+                hub.client.findRoom();
+            }
+        }
+
+        hub.client.joinRoom = function (roomId) {
+            addMsg('방 [' + roomId + ']에 참여했습니다');
+        }
+
+        hub.client.playerConnected = function (name) {
+            addMsg('[' + name + '] 님이 게임에 참여했습니다');
+        }
+
+        hub.client.playerDisconnected = function (name) {
+            addMsg('[' + name + '] 님이 게임을 종료했습니다');
+        }
+
+        $.connection.hub.start()
+            .done(function() {
+                var name = prompt('사용할 이름을 적어주세요');
+                hub.server.setName(name);
+                hub.server.findRoom();
+            });
+
+        $('#send-form')
+            .submit(function() {
+                var message = $('#send-input').val();
+
+                if (!/^\d{3}$/.test(message)) {
+                    $('#send-input').val('');
+                    addMsg('올바른 입력을 해주세요');
+
+                    return false;
+                }
+
+                hub.server.guess(message);
+                $('#send-input').val('');
+
+                return false;
+            });
+    </script>
+</body>
+</html>
