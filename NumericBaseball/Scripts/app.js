@@ -3,9 +3,9 @@
         .module('app', ['SignalR'])
         .controller('gameController', gameController);
 
-    gameController.$inject = ['Hub'];
+    gameController.$inject = ['$scope', 'Hub'];
 
-    function gameController(Hub) {
+    function gameController($scope, Hub) {
         var vm = this;
 
         var hub = new Hub('gameHub',
@@ -61,10 +61,12 @@
             }
 
             _history.push(guess);
+            $scope.$apply();
         }
 
         function onUpdateScores(scores) {
             _scores = scores;
+            $scope.$apply();
         }
 
         function onBeginGame() {
@@ -77,6 +79,7 @@
 
         function onJoinRoom(roomId) {
             _status = 'playing';
+            $scope.$apply();
         }
 
         function onPlayerConnected(player) {

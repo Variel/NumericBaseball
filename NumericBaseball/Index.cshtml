@@ -46,12 +46,15 @@
                 <div class="history" ng-repeat="history in game.getHistory()">
                     <img src="{{ history.player.ImageUrl }}" alt="picture">
                     <div class="name">{{ history.player.Name }}</div>
-                    <div class="result">{{ history.strikes }}S {{ history.balls }}B</div>
+                    <div class="result" ng-if="!history.message">{{ history.strikes }}S {{ history.balls }}B</div>
+                    <div class="number" ng-if="!history.message">{{ history.number }}</div>
                 </div>
             </div>
             <form id="send-form" ng-submit="game.submitNumber(game.inputNumber)">
-                <input id="send-input" ng-model="game.inputNumber" type="text" placeholder="숫자를 입력하세요"/>
-                <input type="submit" value="전송"/>
+                <input type="submit" value="전송" />
+                <div class="send-input">
+                    <input ng-model="game.inputNumber" type="text" placeholder="숫자를 입력하세요" />
+                </div>
             </form>
             <button id="btn-exit">방 나가기</button>
         </div>

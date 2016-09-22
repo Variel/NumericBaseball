@@ -99,7 +99,7 @@ namespace NumericBaseball
                     .updateScores(_scores.OrderByDescending(s => s.Value).Select(s => new { name = s.Key.Name, value = s.Value, imageUrl = s.Key.ImageUrl }));
 
                 _context.Value.Clients.Group(GroupId)
-                    .newGuess(connection, numbers, strike, ball);
+                    .newGuess(connection, numbersString, strike, ball);
 
                 FinishGame(_scores.OrderByDescending(s => s.Value).First().Key);
 
@@ -110,7 +110,7 @@ namespace NumericBaseball
             _history[connection].Add(numbersString);
 
             _context.Value.Clients.Group(GroupId)
-                .newGuess(connection, numbers, strike, ball);
+                .newGuess(connection, numbersString, strike, ball);
 
             _context.Value.Clients.Group(GroupId)
                 .updateScores(_scores.OrderByDescending(s => s.Value).Select(s => new { name = s.Key.Name, value = s.Value, imageUrl = s.Key.ImageUrl }));
