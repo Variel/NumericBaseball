@@ -45,9 +45,32 @@ namespace NumericBaseball
                     _gameRooms.Add(_currentWaitingRoom.GroupId, _currentWaitingRoom);
 
                     var room = _currentWaitingRoom;
-                    Task.Delay(10000)
-                        .ContinueWith((t) =>
+                    Task.Delay(5000)
+                        .ContinueWith(async (t) =>
                         {
+                            if (room.ConnectionCount > 1)
+                            {
+                                for (int time = 5; time > 0; time--)
+                                {
+                                    lock (room)
+                                    {
+                                        if (room.ConnectionCount == 1)
+                                        {
+                                            room.WaitingTime = 5;
+                                            break;
+                                        }
+                                        if (room.WaitingTime < time)
+                                            return;
+                                        room.UpdateWaitingTime(time);
+                                    }
+                                    await Task.Delay(1000);
+                                }
+                            }
+                            else
+                            {
+                                await Task.Delay(5000);
+                            }
+
                             lock (room)
                             {
                                 if (room.IsStarted)
@@ -68,6 +91,7 @@ namespace NumericBaseball
                                     {
                                         room.AskSoloPlay();
                                         room.IsOverWaiting = true;
+                                        room.WaitingTime = 5;
                                     }
                                 }
                             }
@@ -83,32 +107,55 @@ namespace NumericBaseball
                 if (_currentWaitingRoom.IsOverWaiting)
                 {
                     var room = _currentWaitingRoom;
-                    Task.Delay(5000)
-                        .ContinueWith((t) =>
+                    Task.Run(async () =>
+                    {
+                        if (room.ConnectionCount > 1)
                         {
-                            lock (room)
+                            for (int time = 5; time > 0; time--)
                             {
-                                if (room.IsStarted)
+                                lock (room)
                                 {
-                                    return;
-                                }
-
-                                if (room.ConnectionCount > 1)
-                                {
-                                    room.BeginGame();
-
-                                    if (room == _currentWaitingRoom)
-                                        _currentWaitingRoom = null;
-                                }
-                                else
-                                {
-                                    if (room == _currentWaitingRoom)
+                                    if (room.ConnectionCount == 1)
                                     {
-                                        room.AskSoloPlay();
+                                        room.WaitingTime = 5;
+                                        break;
                                     }
+                                    if (room.WaitingTime < time)
+                                        return;
+                                    room.UpdateWaitingTime(time);
+                                }
+                                await Task.Delay(1000);
+                            }
+                        }
+                        else
+                        {
+                            await Task.Delay(5000);
+                        }
+
+                        lock (room)
+                        {
+                            if (room.IsStarted)
+                            {
+                                return;
+                            }
+
+                            if (room.ConnectionCount > 1)
+                            {
+                                room.BeginGame();
+
+                                if (room == _currentWaitingRoom)
+                                    _currentWaitingRoom = null;
+                            }
+                            else
+                            {
+                                if (room == _currentWaitingRoom)
+                                {
+                                    room.AskSoloPlay();
+                                    room.WaitingTime = 5;
                                 }
                             }
-                        });
+                        }
+                    });
                 }
 
                 if (_currentWaitingRoom.ConnectionCount == 4)

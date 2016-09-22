@@ -26,10 +26,18 @@ namespace NumericBaseball
 
         public int ConnectionCount => _connections.Count;
         public DateTime CreatedAt { get; } = DateTime.Now;
+        public int WaitingTime { get; set; }
 
         public GameRoom(string groupId)
         {
             GroupId = groupId;
+            WaitingTime = 10;
+        }
+
+        public void UpdateWaitingTime(int time)
+        {
+            WaitingTime = time;
+            _context.Value.Clients.Group(GroupId).setTimer(WaitingTime);
         }
 
         public void BeginGame()
@@ -101,7 +109,7 @@ namespace NumericBaseball
                 _context.Value.Clients.Group(GroupId)
                     .newGuess(connection, numbersString, strike, ball);
 
-                FinishGame(_scores.OrderByDescending(s => s.Value).First().Key);
+                FinishGame(_scores.OrderByDescending(s => s.Value).First().Key, numbersString);
 
                 return;
             }
@@ -114,6 +122,12 @@ namespace NumericBaseball
 
             _context.Value.Clients.Group(GroupId)
                 .updateScores(_scores.OrderByDescending(s => s.Value).Select(s => new { name = s.Key.Name, value = s.Value, imageUrl = s.Key.ImageUrl }));
+        }
+
+        public void Message(Connection connection, string message)
+        {
+            _context.Value.Clients.Group(GroupId)
+                .newMessage(connection, message);
         }
 
         public void AddConnection(Connection connection)
@@ -149,9 +163,9 @@ namespace NumericBaseball
             }
         }
 
-        private void FinishGame(Connection winner)
+        private void FinishGame(Connection winner, string numbers)
         {
-            _context.Value.Clients.Group(GroupId).finishGame(winner.Name, _scores[winner]);
+            _context.Value.Clients.Group(GroupId).finishGame(winner, _scores[winner], numbers);
 
             foreach (var connection in _connections)
                 _context.Value.Groups.Remove(connection.Id, GroupId);

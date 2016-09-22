@@ -6,8 +6,10 @@
 
 <html ng-app="app">
 <head>
-    <meta name="viewport" content="width=device-width" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
     <link rel="stylesheet" href="site.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css"/>
+    <link rel="stylesheet" href="http://fonts.googleapis.com/earlyaccess/notosanskr.css"/>
     <title>온라인 숫자야구 대전</title>
 </head>
 <body ng-controller="gameController as game">
@@ -28,6 +30,7 @@
         <div class="score-area">
             <div class="profile-box">
                 <img src="https://www.gravatar.com/avatar/{{ game.getPictureHash() }}?d=retro" alt="profile"/>
+                <button class="btn-exit" ng-click="game.exitRoom()"><i class="fa fa-times"></i></button>
                 <div class="desc">
                     <div class="name">{{ game.getPlayerName() }}</div>
                     <div class="level">Lv. 1</div>
@@ -42,21 +45,25 @@
             </ul>
         </div>
         <div class="game-area">
-            <div id="numbers">
-                <div class="history" ng-repeat="history in game.getHistory()">
-                    <img src="{{ history.player.ImageUrl }}" alt="picture">
-                    <div class="name">{{ history.player.Name }}</div>
-                    <div class="result" ng-if="!history.message">{{ history.strikes }}S {{ history.balls }}B</div>
-                    <div class="number" ng-if="!history.message">{{ history.number }}</div>
+            <div id="numbers" ng-style="{height: 'calc(100vh - ' + (130 + game.getScores().length * 40) + 'px)'}">
+                <div class="history" ng-repeat="history in game.getHistory()" ng-class="{ message: history.message, 'sys-message': history.systemMessage }">
+                    <img src="{{ history.player.imageUrl }}" alt="picture">
+                    <div class="name" ng-if="!history.systemMessage">{{ history.player.name }}</div>
+                    <div class="sys-message" ng-if="history.systemMessage">{{ history.systemMessage }}</div>
+                    <div class="result" ng-if="!history.message && !history.systemMessage">{{ history.strikes }}S {{ history.balls }}B</div>
+                    <div class="number" ng-if="!history.message && !history.systemMessage">{{ history.number }}</div>
+                    <div class="message" ng-if="history.message && !history.systemMessage">{{ history.message }}</div>
                 </div>
             </div>
-            <form id="send-form" ng-submit="game.submitNumber(game.inputNumber)">
+            <div class="exit-form" ng-if="game.isGameFinished()">
+                <button ng-click="game.exitRoom()">게임 종료</button>
+            </div>
+            <form id="send-form" ng-submit="game.submitNumber(game.inputNumber)" ng-if="!game.isGameFinished()">
                 <input type="submit" value="전송" />
                 <div class="send-input">
-                    <input ng-model="game.inputNumber" type="text" placeholder="숫자를 입력하세요" />
+                    <input ng-model="game.inputNumber" type="text" placeholder="숫자/메시지를 입력하세요" />
                 </div>
             </form>
-            <button id="btn-exit">방 나가기</button>
         </div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-md5/2.3.1/js/md5.min.js"></script>

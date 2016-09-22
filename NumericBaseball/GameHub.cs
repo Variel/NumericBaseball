@@ -18,7 +18,8 @@ namespace NumericBaseball
             if (Clients.CallerState.LastInput != null
                 && Clients.CallerState.LastInput > DateTime.Now.AddSeconds(-5))
             {
-                Clients.Caller.error("5초에 한 번씩 입력할 수 있습니다");
+                var remain = (TimeSpan)(Clients.CallerState.LastInput - DateTime.Now.AddSeconds(-5));
+                Clients.Caller.error($"5초에 한 번씩 입력할 수 있습니다 ({remain.TotalSeconds.ToString("N1")}s)");
                 return;
             }
 
@@ -36,6 +37,13 @@ namespace NumericBaseball
             var connection = _connections[Context.ConnectionId];
             GameManager.Instance.GetGameRoomByConnection(connection)?
                 .Guess(connection, numbers.ToCharArray());
+        }
+
+        public void Message(string message)
+        {
+            var connection = _connections[Context.ConnectionId];
+            GameManager.Instance.GetGameRoomByConnection(connection)?
+                .Message(connection, message);
         }
 
         public void FindRoom()

@@ -122,6 +122,7 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="gameicon.png" />
     <Content Include="packages.config" />
     <Content Include="Index.cshtml" />
     <None Include="compilerconfig.json" />

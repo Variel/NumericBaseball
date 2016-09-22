@@ -3,7 +3,11 @@
 
 html, body {
   margin: 0;
-  padding: 0; }
+  padding: 0;
+  font-family: 'Noto Sans KR', sans-serif; }
+
+button, input[type=submit], input[type=button] {
+  -webkit-appearance: none; }
 
 .container {
   width: 100%;
@@ -79,6 +83,19 @@ html, body {
       display: block;
       float: left;
       margin-right: 10px; }
+    .score-area .profile-box .btn-exit {
+      display: block;
+      float: right;
+      width: 30px;
+      height: 30px;
+      margin: 8px;
+      border: none;
+      font-size: 20px;
+      line-height: 20px;
+      color: white;
+      background: none; }
+      .score-area .profile-box .btn-exit:active {
+        color: #F4511E; }
     .score-area .profile-box .desc {
       display: block;
       overflow: hidden; }
@@ -133,27 +150,55 @@ html, body {
       width: auto;
       overflow: hidden; } }
   .game-area #numbers {
-    overflow-y: scroll; }
+    overflow-y: scroll;
+    background: #ECEFF1; }
+    @media only screen and (min-width: 640px) {
+      .game-area #numbers {
+        padding: 10px; } }
+    @media only screen and (min-height: 750px) {
+      .game-area #numbers {
+        max-height: 60vh; } }
+    @media only screen and (min-width: 640px) and (max-height: 769px) {
+      .game-area #numbers {
+        min-height: calc(100vh - 100px); } }
     .game-area #numbers .history {
       overflow: hidden;
-      padding: 5px 10px; }
+      padding: 5px 10px;
+      background: transparent;
+      animation: new-item 1s; }
+
+@keyframes new-item {
+  from {
+    background: #81D4FA; } }
+      .game-area #numbers .history.message {
+        background: #BBDEFB; }
+      .game-area #numbers .history.sys-message {
+        background: #F8BBD0; }
       .game-area #numbers .history img {
         display: block;
         float: left;
         width: 30px;
         height: 30px;
         margin-right: 5px; }
-      .game-area #numbers .history .name, .game-area #numbers .history .number, .game-area #numbers .history .result {
+      .game-area #numbers .history .name, .game-area #numbers .history .number, .game-area #numbers .history .result, .game-area #numbers .history .sys-message {
         display: block;
         font-size: 18px;
         height: 30px;
         line-height: 30px; }
-      .game-area #numbers .history .name {
+      .game-area #numbers .history .name, .game-area #numbers .history .sys-message {
         float: left; }
       .game-area #numbers .history .number, .game-area #numbers .history .result {
         float: right; }
+      .game-area #numbers .history .message {
+        clear: both;
+        padding-left: 35px; }
+      .game-area #numbers .history .result {
+        margin-left: 10px; }
+      @media only screen and (max-width: 360px) {
+        .game-area #numbers .history .sys-message {
+          font-size: 14px; } }
   .game-area #send-form {
-    padding: 0 10px; }
+    padding: 10px; }
     .game-area #send-form::after {
       clear: both;
       display: table-cell;
@@ -185,6 +230,19 @@ html, body {
       border: 1px solid #4CAF50;
       border-radius: 0 15px 15px 0;
       outline: none; }
+      @media only screen and (max-width: 370px) {
+        .game-area #send-form input[type=submit] {
+          width: 60px; } }
       .game-area #send-form input[type=submit]:active {
         background: #4CAF50; }
+  .game-area .exit-form button {
+    display: block;
+    height: 40px;
+    margin: 10px auto;
+    padding: 5px 50px;
+    border: 2px solid #1E88E5;
+    border-radius: 5px;
+    font-size: 16px;
+    color: white;
+    background: #42A5F5; }
 
