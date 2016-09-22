@@ -96,7 +96,10 @@ namespace NumericBaseball
                 _scores[connection] += 2;
 
                 _context.Value.Clients.Group(GroupId)
-                    .updateScores(_scores.OrderByDescending(s => s.Value).Select(s => $"{s.Key.Name}: {s.Value}"));
+                    .updateScores(_scores.OrderByDescending(s => s.Value).Select(s => new { name = s.Key.Name, value = s.Value, imageUrl = s.Key.ImageUrl }));
+
+                _context.Value.Clients.Group(GroupId)
+                    .newGuess(connection, numbers, strike, ball);
 
                 FinishGame(_scores.OrderByDescending(s => s.Value).First().Key);
 
@@ -107,10 +110,10 @@ namespace NumericBaseball
             _history[connection].Add(numbersString);
 
             _context.Value.Clients.Group(GroupId)
-                .newGuess(connection.Name, $"{new string(numbers)}: {strike}S {ball}B");
+                .newGuess(connection, numbers, strike, ball);
 
             _context.Value.Clients.Group(GroupId)
-                .updateScores(_scores.OrderByDescending(s => s.Value).Select(s => $"{s.Key.Name}: {s.Value}"));
+                .updateScores(_scores.OrderByDescending(s => s.Value).Select(s => new { name = s.Key.Name, value = s.Value, imageUrl = s.Key.ImageUrl }));
         }
 
         public void AddConnection(Connection connection)
@@ -118,20 +121,20 @@ namespace NumericBaseball
             _context.Value.Groups.Add(connection.Id, GroupId);
             _connections.Add(connection);
             _context.Value.Clients.Client(connection.Id).joinRoom(GroupId.Substring(0, 4));
-            _context.Value.Clients.Group(GroupId, connection.Id).playerConnected(connection.Name);
+            _context.Value.Clients.Group(GroupId, connection.Id).playerConnected(connection);
 
             _scores.Add(connection, 0);
             _history.Add(connection, new List<string>());
 
             _context.Value.Clients.Client(connection.Id)
-                .updateScores(_scores.OrderByDescending(s => s.Value).Select(s => $"{s.Key.Name}: {s.Value}"));
+                .updateScores(_scores.OrderByDescending(s => s.Value).Select(s => new { name = s.Key.Name, value = s.Value, imageUrl = s.Key.ImageUrl }));
             _context.Value.Clients.Group(GroupId, connection.Id)
-                .updateScores(_scores.OrderByDescending(s => s.Value).Select(s => $"{s.Key.Name}: {s.Value}"));
+                .updateScores(_scores.OrderByDescending(s => s.Value).Select(s => new { name = s.Key.Name, value = s.Value, imageUrl = s.Key.ImageUrl }));
         }
 
         public void Disconnect(Connection connection)
         {
-            _context.Value.Clients.Group(GroupId, connection.Id).playerDisconnected(connection.Name);
+            _context.Value.Clients.Group(GroupId, connection.Id).playerDisconnected(connection);
             _context.Value.Groups.Remove(connection.Id, GroupId);
             _connections.Remove(connection);
             _scores.Remove(connection);

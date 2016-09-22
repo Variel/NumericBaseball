@@ -50,10 +50,11 @@ namespace NumericBaseball
             GameManager.Instance.Disconnect(connection);
         }
 
-        public void SetName(string name)
+        public void SetName(string name, string imageUrl)
         {
             var connection = _connections[Context.ConnectionId];
             connection.Name = name;
+            connection.ImageUrl = imageUrl;
         }
 
         public override Task OnConnected()

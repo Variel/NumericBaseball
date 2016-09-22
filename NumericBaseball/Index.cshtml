@@ -4,159 +4,200 @@
 
 <!DOCTYPE html>
 
-<html>
+<html ng-app="app">
 <head>
     <meta name="viewport" content="width=device-width" />
+    <link rel="stylesheet" href="site.css"/>
     <title>온라인 숫자야구 대전</title>
 </head>
-<body>
-    <div id="scores"></div>
-    <div id="numbers"></div>
-    <form id="send-form">
-        <input id="send-input" type="text" placeholder="숫자를 입력하세요"/>
-        <input type="submit" value="전송"/>
-    </form>
-    <button id="btn-exit">방 나가기</button>
+<body ng-controller="gameController as game">
+    <div id="screen-init" class="container" ng-if="game.getStatus() === 'init'">
+        <h1>온라인 숫자야구 대전</h1>
+        <form ng-submit="game.submitName(game.inputName)">
+            <input type="text" ng-model="game.inputName" maxlength="8" placeholder="닉네임"/>
+            <input type="submit" value="게임 시작"/>
+        </form>
+    </div>
+    <div id="screen-finding" class="container" ng-if="game.getStatus() === 'finding'">
+        <h1>온라인 숫자야구 대전</h1>
+        <div style="height: 110px; font-size: 24px; padding: 43px; line-height: 1">
+            매칭 검색중...
+        </div>
+    </div>
+    <div id="screen-gameplay" class="container" ng-if="game.getStatus() === 'playing'">
+        <div class="score-area">
+            <div class="profile-box">
+                <img src="https://www.gravatar.com/avatar/{{ game.getPictureHash() }}?d=retro" alt="profile"/>
+                <div class="desc">
+                    <div class="name">{{ game.getPlayerName() }}</div>
+                    <div class="level">Lv. 1</div>
+                </div>
+            </div>
+            <ul id="scores">
+                <li ng-repeat="score in game.getScores()">
+                    <img src="{{ score.imageUrl }}" alt="picture">
+                    <div class="score">{{ score.value }}</div>
+                    <div class="name">{{ score.name }}</div>
+                </li>
+            </ul>
+        </div>
+        <div class="game-area">
+            <div id="numbers">
+                <div class="history" ng-repeat="history in game.getHistory()">
+                    <img src="{{ history.player.ImageUrl }}" alt="picture">
+                    <div class="name">{{ history.player.Name }}</div>
+                    <div class="result">{{ history.strikes }}S {{ history.balls }}B</div>
+                </div>
+            </div>
+            <form id="send-form" ng-submit="game.submitNumber(game.inputNumber)">
+                <input id="send-input" ng-model="game.inputNumber" type="text" placeholder="숫자를 입력하세요"/>
+                <input type="submit" value="전송"/>
+            </form>
+            <button id="btn-exit">방 나가기</button>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-md5/2.3.1/js/md5.min.js"></script>
     <script src="~/Scripts/jquery-1.6.4.min.js"></script>
     <script src="~/Scripts/jquery.signalR-2.2.1.min.js"></script>
     <script src="~/signalr/hubs"></script>
+    <script src="~/Scripts/angular.min.js"></script>
+    <script src="~/Scripts/angular-signalr-hub.min.js"></script>
+    <script src="~/Scripts/app.js"></script>
     <script>
-        var hub = $.connection.gameHub;
+        //var hub = $.connection.gameHub;
 
-        function clearScore() {
-            $('#scores')
-                .html('');
-        }
+        //function clearScore() {
+        //    $('#scores')
+        //        .html('');
+        //}
 
-        function clearMsg() {
-            $('#numbers')
-                .html('');
-        }
+        //function clearMsg() {
+        //    $('#numbers')
+        //        .html('');
+        //}
 
-        function addMsg(msg) {
-            $('#numbers')
-                .append('<div>' + msg + '</div>');
-        }
+        //function addMsg(msg) {
+        //    $('#numbers')
+        //        .append('<div>' + msg + '</div>');
+        //}
 
-        function addMsgWithSender(sender, msg) {
-            addMsg('[' + sender + '] ' + msg);
-        }
+        //function addMsgWithSender(sender, msg) {
+        //    addMsg('[' + sender + '] ' + msg);
+        //}
 
-        function notification(msg) {
-            if (!("Notification" in window)) {
-                console.log("This browser does not support desktop notification");
-            }
-            else if (Notification.permission === "granted") {
-                var noti = new Notification(msg);
-                noti.onclick = function () {
-                    window.focus();
-                    this.close();
-                }
-            }
-            else if (Notification.permission !== 'denied') {
-                Notification.requestPermission(function (permission) {
-                    if (!('permission' in Notification)) {
-                        Notification.permission = permission;
-                    }
-                });
-            }
+        //function notification(msg) {
+        //    if (!("Notification" in window)) {
+        //        console.log("This browser does not support desktop notification");
+        //    } else if (Notification.permission === "granted") {
+        //        var noti = new Notification(msg);
+        //        noti.onclick = function() {
+        //            window.focus();
+        //            this.close();
+        //        }
+        //    } else if (Notification.permission !== 'denied') {
+        //        Notification.requestPermission(function(permission) {
+        //            if (!('permission' in Notification)) {
+        //                Notification.permission = permission;
+        //            }
+        //        });
+        //    }
 
-        }
+        //}
 
-        hub.client.error = function (msg) {
-            $('#numbers')
-                .append('<div>' + msg + '</div>');
-        }
+        //hub.client.error = function(msg) {
+        //    $('#numbers')
+        //        .append('<div>' + msg + '</div>');
+        //}
 
-        hub.client.newGuess = function (id, msg) {
-            addMsgWithSender(id, msg);
-        }
+        //hub.client.newGuess = function(id, msg) {
+        //    addMsgWithSender(id, msg);
+        //}
 
-        hub.client.updateScores = function (scores) {
-            $('#scores').html('');
+        //hub.client.updateScores = function(scores) {
+        //    $('#scores').html('');
 
-            for (var id in scores) {
-                $('#scores')
-                    .append('<div>' + scores[id] + '</div>');
-            }
-        }
+        //    for (var id in scores) {
+        //        $('#scores')
+        //            .append('<div>' + scores[id] + '</div>');
+        //    }
+        //}
 
-        hub.client.beginGame = function () {
-            addMsg('게임 시작');
-            notification('게임 시작');
-        }
+        //hub.client.beginGame = function() {
+        //    addMsg('게임 시작');
+        //    notification('게임 시작');
+        //}
 
-        hub.client.finishGame = function (winner, score) {
-            addMsg(winner + '님이 ' + score + '점으로 이겼습니다');
-            setTimeout(function() {
-                    if (confirm('새 게임을 계속하시겠습니까?')) {
-                        clearMsg();
-                        clearScore();
-                        addMsg('새 게임을 검색합니다');
-                        hub.server.findRoom();
-                    }
-                },
-                100);
-        }
+        //hub.client.finishGame = function(winner, score) {
+        //    addMsg(winner + '님이 ' + score + '점으로 이겼습니다');
+        //    setTimeout(function() {
+        //            if (confirm('새 게임을 계속하시겠습니까?')) {
+        //                clearMsg();
+        //                clearScore();
+        //                addMsg('새 게임을 검색합니다');
+        //                hub.server.findRoom();
+        //            }
+        //        },
+        //        100);
+        //}
 
-        hub.client.joinRoom = function (roomId) {
-            addMsg('방 [' + roomId + ']에 참여했습니다. 다른 플레이어를 기다리는 중입니다.');
-        }
+        //hub.client.joinRoom = function(roomId) {
+        //    addMsg('방 [' + roomId + ']에 참여했습니다. 다른 플레이어를 기다리는 중입니다.');
+        //}
 
-        hub.client.playerConnected = function (name) {
-            addMsg('[' + name + '] 님이 게임에 참여했습니다');
-            notification('[' + name + '] 님이 게임에 참여했습니다');
-        }
+        //hub.client.playerConnected = function(name) {
+        //    addMsg('[' + name + '] 님이 게임에 참여했습니다');
+        //    notification('[' + name + '] 님이 게임에 참여했습니다');
+        //}
 
-        hub.client.playerDisconnected = function (name) {
-            addMsg('[' + name + '] 님이 게임을 종료했습니다');
-        }
+        //hub.client.playerDisconnected = function(name) {
+        //    addMsg('[' + name + '] 님이 게임을 종료했습니다');
+        //}
 
-        $.connection.hub.start()
-            .done(function() {
-                var name = prompt('사용할 이름을 적어주세요');
-                if (name && name.length !== 0 && name.replace(/\s/g, '').length !== 0) {
-                    hub.server.setName(name);
-                }
-                hub.server.findRoom();
-            });
+        //$.connection.hub.start()
+        //    .done(function() {
+        //        var name = prompt('사용할 이름을 적어주세요');
+        //        if (name && name.length !== 0 && name.replace(/\s/g, '').length !== 0) {
+        //            hub.server.setName(name);
+        //        }
+        //        hub.server.findRoom();
+        //    });
 
-        $('#send-form')
-            .submit(function() {
-                var message = $('#send-input').val();
+        //$('#send-form')
+        //    .submit(function() {
+        //        var message = $('#send-input').val();
 
-                if (!/^\d{3}$/.test(message)) {
-                    $('#send-input').val('');
-                    addMsg('올바른 입력을 해주세요');
+        //        if (!/^\d{3}$/.test(message)) {
+        //            $('#send-input').val('');
+        //            addMsg('올바른 입력을 해주세요');
 
-                    return false;
-                }
+        //            return false;
+        //        }
 
-                hub.server.guess(message);
-                $('#send-input').val('');
+        //        hub.server.guess(message);
+        //        $('#send-input').val('');
 
-                return false;
-            });
+        //        return false;
+        //    });
 
-        $('#btn-exit')
-            .click(function() {
-                hub.server.exitRoom();
-                addMsg('게임을 종료하고 방을 나왔습니다');
-                setTimeout(function() {
-                        if (confirm('새 게임을 계속하시겠습니까?')) {
-                            clearMsg();
-                            clearScore();
-                            addMsg('새 게임을 검색합니다');
-                            hub.server.findRoom();
-                        }
-                    },
-                    100);
-            });
+        //$('#btn-exit')
+        //    .click(function() {
+        //        hub.server.exitRoom();
+        //        addMsg('게임을 종료하고 방을 나왔습니다');
+        //        setTimeout(function() {
+        //                if (confirm('새 게임을 계속하시겠습니까?')) {
+        //                    clearMsg();
+        //                    clearScore();
+        //                    addMsg('새 게임을 검색합니다');
+        //                    hub.server.findRoom();
+        //                }
+        //            },
+        //            100);
+        //    });
 
         if (!("Notification" in window)) {
             console.log("This browser does not support desktop notification");
         } else if (Notification.permission !== 'denied') {
-            Notification.requestPermission(function (permission) {
+            Notification.requestPermission(function(permission) {
                 if (!('permission' in Notification)) {
                     Notification.permission = permission;
                 }

@@ -9,7 +9,7 @@ namespace NumericBaseball
     {
         public string Id { get; }
         public string Name { get; set; }
-
+        public string ImageUrl { get; set; }
 
         public Connection(string id, string name)
         {
