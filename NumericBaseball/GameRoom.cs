@@ -118,18 +118,21 @@ namespace NumericBaseball
             _context.Value.Groups.Add(connection.Id, GroupId);
             _connections.Add(connection);
             _context.Value.Clients.Client(connection.Id).joinRoom(GroupId.Substring(0, 4));
-            _context.Value.Clients.Group(GroupId).playerConnected(connection.Name);
+            _context.Value.Clients.Group(GroupId, connection.Id).playerConnected(connection.Name);
 
             _scores.Add(connection, 0);
             _history.Add(connection, new List<string>());
 
-            _context.Value.Clients.Group(GroupId)
+            _context.Value.Clients.Client(connection.Id)
+                .updateScores(_scores.OrderByDescending(s => s.Value).Select(s => $"{s.Key.Name}: {s.Value}"));
+            _context.Value.Clients.Group(GroupId, connection.Id)
                 .updateScores(_scores.OrderByDescending(s => s.Value).Select(s => $"{s.Key.Name}: {s.Value}"));
         }
 
         public void Disconnect(Connection connection)
         {
-            _context.Value.Clients.Group(GroupId).playerDisconnected(connection.Name);
+            _context.Value.Clients.Group(GroupId, connection.Id).playerDisconnected(connection.Name);
+            _context.Value.Groups.Remove(connection.Id, GroupId);
             _connections.Remove(connection);
             _scores.Remove(connection);
             _history.Remove(connection);
