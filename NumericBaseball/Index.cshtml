@@ -42,6 +42,27 @@
             addMsg('[' + sender + '] ' + msg);
         }
 
+        function notification(msg) {
+            if (!("Notification" in window)) {
+                console.log("This browser does not support desktop notification");
+            }
+            else if (Notification.permission === "granted") {
+                var noti = new Notification(msg);
+                noti.onclick = function () {
+                    window.focus();
+                    this.close();
+                }
+            }
+            else if (Notification.permission !== 'denied') {
+                Notification.requestPermission(function (permission) {
+                    if (!('permission' in Notification)) {
+                        Notification.permission = permission;
+                    }
+                });
+            }
+
+        }
+
         hub.client.error = function (msg) {
             $('#numbers')
                 .append('<div>' + msg + '</div>');
@@ -62,6 +83,7 @@
 
         hub.client.beginGame = function () {
             addMsg('게임 시작');
+            notification('게임 시작');
         }
 
         hub.client.finishGame = function (winner, score) {
@@ -83,6 +105,7 @@
 
         hub.client.playerConnected = function (name) {
             addMsg('[' + name + '] 님이 게임에 참여했습니다');
+            notification('[' + name + '] 님이 게임에 참여했습니다');
         }
 
         hub.client.playerDisconnected = function (name) {
@@ -129,6 +152,16 @@
                     },
                     100);
             });
+
+        if (!("Notification" in window)) {
+            console.log("This browser does not support desktop notification");
+        } else if (Notification.permission !== 'denied') {
+            Notification.requestPermission(function (permission) {
+                if (!('permission' in Notification)) {
+                    Notification.permission = permission;
+                }
+            });
+        }
     </script>
 </body>
 </html>
