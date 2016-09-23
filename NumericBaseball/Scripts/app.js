@@ -99,6 +99,8 @@
         function onJoinRoom(roomId) {
             _isGameFinished = false;
             _status = 'playing';
+            showSystemMessage('방 [' + roomId + ']에 접속했습니다.');
+            showSystemMessage('다른 플레이어를 기다리는 중입니다.');
             $scope.$apply();
         }
 
